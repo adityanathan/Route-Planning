@@ -7,18 +7,37 @@
 
 % violet, red, blue, grey, bluebranch, orange, pink, magenta, greenbranch, green, yellow
 
-% Optimization Ideas
-% Draw a search tree
-% Use accumulators everywhere.
-% Make your Goal orderings and rule orderings such that there is no unnecessary backtracking.
-% Use cuts to prune the search space.
+% Remaining Bug - one semicolon it returns again.
 
-colors([yellowLine, greenLine, greenbranchLine, magentaLine, pinkLine, orangeLine, bluebranchLine, greyLine, blueLine, redLine, violetLine]).
+colors([yellowLine, 
+    greenLine, 
+    greenbranchLine, 
+    magentaLine, 
+    pinkLine, 
+    orangeLine, 
+    bluebranchLine, 
+    greyLine, 
+    blueLine, 
+    redLine, 
+    violetLine]).
+
+outputcolor(yellowLine, yellow).
+outputcolor(greenLine, green).
+outputcolor(greenbranchLine, greenbranch).
+outputcolor(magentaLine, magenta).
+outputcolor(pinkLine, pink).
+outputcolor(orangeLine, orange).
+outputcolor(bluebranchLine, bluebranch).
+outputcolor(greyLine, grey).
+outputcolor(blueLine, blue).
+outputcolor(redLine, red).
+outputcolor(violetLine, violet).
 
 line(X, LL):- 
-    colors(ColorList), 
-    member(X, ColorList), 
-    G=..[X,LL], 
+    colors(ColorList),
+    outputcolor(Y,X),
+    member(Y, ColorList), 
+    G=..[Y,LL], 
     G.
 
 % Usually hop(a, X)
@@ -75,8 +94,8 @@ myiddfs(X,Y,LPath):-
     % length(LPath,5),
     % myiddfs_r(1, X, Y, LPath),
     % myiddfs_r(1, X, Y, [], LPathAcc, 5),
-    myiddfs_r(1, X, Y, [], LPath, 5).
-    % display_multiple(LPath).
+    myiddfs_r(1, X, Y, [], LPath, 5),
+    display_multiple(LPath).
 
 % myiddfs_r(Depth, _, _, []):- format("~n Search complete at Depth ~w ~n",Depth).
 
@@ -120,9 +139,11 @@ myiddfs_r(Depth, X, Y, LPath, Routes, Num_Paths):-
     NewDepth is Depth+1,
     findall(H, maxdepth(Depth, X, Y, H), LL), 
     appendLists(LPath, LL, NewLPath, Num_Paths),
-    length(LL, Len), NewNum_Paths is Num_Paths-Len,
+    length(LPath, Len), length(NewLPath, Len2), NewNum_Paths is Num_Paths-(Len2-Len),
     % nl,write(Num_Paths),nl,
     myiddfs_r(NewDepth, X, Y, NewLPath, Routes, NewNum_Paths).
+
+paths(X, Y, LL):- myiddfs(X,Y,LL),!.
 
 % Debugging Aids
 getPathLen([],[]).
