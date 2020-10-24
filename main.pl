@@ -8,8 +8,7 @@
 % violet, red, blue, grey, bluebranch, orange, pink, magenta, greenbranch, green, yellow
 
 % Optimization Ideas
-
-% Collect all possible hops for a particular unification and assert them
+% Draw a search tree
 % Use accumulators everywhere.
 % Make your Goal orderings and rule orderings such that there is no unnecessary backtracking.
 % Use cuts to prune the search space.
@@ -22,14 +21,11 @@ line(X, LL):-
     G=..[X,LL], 
     G.
 
-% :-  dynamic  hop_lookup/3.
-
-% hop(X, Y):- hop_lookup(X,Y), !.
-
+% Usually hop(a, X)
 hop((Color, Station1), (Color, Station2)):-
     line(Color, StationList),
-    station(Color, Station1),
-    station(Color, Station2),
+    member(Station1, StationList),
+    member(Station2, StationList),
     Station1 \== Station2,
     hopSameColor(Station1, Station2, StationList).
 
@@ -44,15 +40,16 @@ station(Color, Station):-
 
 hopSameColor(X, Y, [X, Y | _]).
 hopSameColor(Y, X, [X, Y | _]).
-hopSameColor(X, Y, [_, B | Rest]):-
+
+hopSameColor(X, Y, List):-
+    List = [_, B | Rest],
     hopSameColor(X, Y, [B | Rest]).
 
+display_multiple([]).
 display_multiple(LList):-
     [H|T]=LList,
     display_path(H),
     display_multiple(T).
-
-% display_multiple([]).
 
 display_path(List):-
     nl,length(List,X), format("Length = ~w, ", X), nl, write(List),nl.
@@ -73,17 +70,60 @@ maxdepth_r(Depth,X,Y,Acc,Path):-
     maxdepth_r(NewDepth,Z,Y,[X|Acc],Path).
     
 myiddfs(X,Y,LPath):-
-    length(LPath,5),
-    myiddfs_r(1, X, Y, LPath),
-    display_multiple(LPath).
+    station(_, X),
+    station(_, Y), !,
+    % length(LPath,5),
+    % myiddfs_r(1, X, Y, LPath),
+    % myiddfs_r(1, X, Y, [], LPathAcc, 5),
+    myiddfs_r(1, X, Y, [], LPath, 5).
+    % display_multiple(LPath).
 
 % myiddfs_r(Depth, _, _, []):- format("~n Search complete at Depth ~w ~n",Depth).
-myiddfs_r(_, _, _, []).
 
-myiddfs_r(Depth, X, Y, LPath):-
-    LPath = [H|LPath2],
-    write(depth=Depth), nl,
+% myiddfs_r(Depth, X, Y, LPath):-
+%     LPath = [H|LPath2],
+%     write(depth=Depth), nl,
+%     NewDepth is Depth+1,
+%     ((maxdepth(Depth, X, Y, H), 
+%     !, myiddfs_r(NewDepth, X, Y, LPath2)) ; myiddfs_r(NewDepth, X, Y, LPath)).
+
+% --------------------------------------------------------------------------------
+
+% myiddfs_r(_, _, _, LL, LL, X):- X=<0.
+
+% myiddfs_r(Depth, X, Y, LPath, Routes, Num_Paths):-
+%     write(depth=Depth), nl,
+%     NewDepth is Depth+1,
+%     findall(H, maxdepth(Depth, X, Y, H), LL), 
+%     % write(LL),
+%     length(LL, Len), NewNum_Paths is Num_Paths-Len,
+%     append(LPath, LL, NewLPath),
+%     myiddfs_r(NewDepth, X, Y, NewLPath, Routes, NewNum_Paths).
+
+% --------------------------------------------------------------------------------
+
+appendLists(X, [], X, _).
+appendLists(X, _, X, 0).
+appendLists(LPath, LL, NewL, Num_Paths):- 
+    % length(LPath, LPath_Len), 
+    Num_Paths>0, 
+    LL = [H|T], 
+    append(LPath, [H], L2), 
+    NewNum_Paths is Num_Paths-1,
+    appendLists(L2, T, NewL, NewNum_Paths).
+
+myiddfs_r(_, _, _, LL, LL, 0).
+
+myiddfs_r(Depth, X, Y, LPath, Routes, Num_Paths):-
+    Num_Paths>0,
+    % write(depth=Depth), nl,
     NewDepth is Depth+1,
-    ((maxdepth(Depth, X, Y, H), 
-    % write(H),
-    !, myiddfs_r(NewDepth, X, Y, LPath2)) ; myiddfs_r(NewDepth, X, Y, LPath)).
+    findall(H, maxdepth(Depth, X, Y, H), LL), 
+    appendLists(LPath, LL, NewLPath, Num_Paths),
+    length(LL, Len), NewNum_Paths is Num_Paths-Len,
+    % nl,write(Num_Paths),nl,
+    myiddfs_r(NewDepth, X, Y, NewLPath, Routes, NewNum_Paths).
+
+% Debugging Aids
+getPathLen([],[]).
+getPathLen([H|T], L):-length(H,Len), L=[Len|LTail], getPathLen(T,LTail).
