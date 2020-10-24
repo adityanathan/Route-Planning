@@ -1,14 +1,5 @@
 :- [db].
 
-% paths(X,Y,LL)
-%  LL - List of all acyclic paths by which a traveller can go from X to Y
-%  X must be head of every list in LL and Y must be tail of every list in LL
-%  LL is sorted in non-descending order i.e ascending or equal order of hop(X,Y)
-
-% violet, red, blue, grey, bluebranch, orange, pink, magenta, greenbranch, green, yellow
-
-% Remaining Bug - one semicolon it returns again.
-
 colors([yellowLine, 
     greenLine, 
     greenbranchLine, 
@@ -91,40 +82,12 @@ maxdepth_r(Depth,X,Y,Acc,Path):-
 myiddfs(X,Y,LPath):-
     station(_, X),
     station(_, Y), !,
-    % length(LPath,5),
-    % myiddfs_r(1, X, Y, LPath),
-    % myiddfs_r(1, X, Y, [], LPathAcc, 5),
     myiddfs_r(1, X, Y, [], LPath, 5),
     display_multiple(LPath).
-
-% myiddfs_r(Depth, _, _, []):- format("~n Search complete at Depth ~w ~n",Depth).
-
-% myiddfs_r(Depth, X, Y, LPath):-
-%     LPath = [H|LPath2],
-%     write(depth=Depth), nl,
-%     NewDepth is Depth+1,
-%     ((maxdepth(Depth, X, Y, H), 
-%     !, myiddfs_r(NewDepth, X, Y, LPath2)) ; myiddfs_r(NewDepth, X, Y, LPath)).
-
-% --------------------------------------------------------------------------------
-
-% myiddfs_r(_, _, _, LL, LL, X):- X=<0.
-
-% myiddfs_r(Depth, X, Y, LPath, Routes, Num_Paths):-
-%     write(depth=Depth), nl,
-%     NewDepth is Depth+1,
-%     findall(H, maxdepth(Depth, X, Y, H), LL), 
-%     % write(LL),
-%     length(LL, Len), NewNum_Paths is Num_Paths-Len,
-%     append(LPath, LL, NewLPath),
-%     myiddfs_r(NewDepth, X, Y, NewLPath, Routes, NewNum_Paths).
-
-% --------------------------------------------------------------------------------
 
 appendLists(X, [], X, _).
 appendLists(X, _, X, 0).
 appendLists(LPath, LL, NewL, Num_Paths):- 
-    % length(LPath, LPath_Len), 
     Num_Paths>0, 
     LL = [H|T], 
     append(LPath, [H], L2), 
@@ -140,7 +103,6 @@ myiddfs_r(Depth, X, Y, LPath, Routes, Num_Paths):-
     findall(H, maxdepth(Depth, X, Y, H), LL), 
     appendLists(LPath, LL, NewLPath, Num_Paths),
     length(LPath, Len), length(NewLPath, Len2), NewNum_Paths is Num_Paths-(Len2-Len),
-    % nl,write(Num_Paths),nl,
     myiddfs_r(NewDepth, X, Y, NewLPath, Routes, NewNum_Paths).
 
 paths(X, Y, LL):- myiddfs(X,Y,LL),!.
