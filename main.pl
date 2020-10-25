@@ -70,6 +70,8 @@ maxdepth(Depth,X,Y,Path):-
     maxdepth_r(Depth,(ColorX, X),(ColorY, Y),[],P),
     reverse(P,Path).
 
+maxdepth_r(0,X,X,[],[X]).
+
 maxdepth_r(1,X,Y,Acc,[Y,X|Acc]):- \+memberchk(Y,Acc),hop(X,Y).
 
 maxdepth_r(Depth,X,Y,Acc,Path):-
@@ -81,9 +83,10 @@ maxdepth_r(Depth,X,Y,Acc,Path):-
     
 myiddfs(X,Y,LPath):-
     station(_, X),
-    station(_, Y), !,
-    myiddfs_r(1, X, Y, [], LPath, 5),
-    display_multiple(LPath).
+	station(_, Y), !,
+	myiddfs_r(0, X, Y, [], LPath, 5).
+    % myiddfs_r(1, X, Y, [], LPath, 5).
+    % display_multiple(LPath).
 
 appendLists(X, [], X, _).
 appendLists(X, _, X, 0).
